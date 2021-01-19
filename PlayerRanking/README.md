@@ -10,6 +10,4 @@ Tech used:
 - I also used Blazorise. It's a free Blazor component library that I think looks pretty sleek. I find these sorts of libraries to be very helpful in prototyping/rapid development.
 - I believe everything else is just out of the box .NET 5.
 
-Overall... I thought this was a fun small project!
-
-Anyways... here ya go ¯\_(ツ)_/¯
+Overall... I thought this was a fun small project! Anyways... here ya go ¯\_(ツ)_/¯
