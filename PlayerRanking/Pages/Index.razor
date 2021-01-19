@@ -1,7 +1,80 @@
 ﻿@page "/"
+@using PlayerRanking.Models
+@using PlayerRanking.Data
+@inject PlayerService playerService
 
-<h1>Hello, world!</h1>
+<h1>Rankings</h1>
+@if (listedPlayers == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <Buttons Style="float:left">
+        <Button Clicked="() => {
+            currentFilter = Filter.Favorites;
+            FilterByFavoritePlayers();}">
+            Favorites
+        </Button>
+        <Button Clicked="async() => {
+            currentFilter = Filter.Top5;
+            await GetPlayerList(5);}">
+            Top 5
+        </Button>
+        <Button Clicked="async() => {
+            currentFilter = Filter.Top10;
+            await GetPlayerList(10);}">
+            Top 10
+        </Button>
+        <Button Clicked="async() => {
+            currentFilter = Filter.Top20;
+            await GetPlayerList(20);}">
+            Top 20
+        </Button>
+    </Buttons>
 
-Welcome to your new app.
+    <DataGrid TItem="Player"
+              Data="listedPlayers"
+              Filterable="true"
+              ShowPager="true"
+              RowClicked="async(r) => await GetPlayerBio(r.Item)"
+              FilterMethod="DataGridFilterMethod.Contains"
+              RowUpdated="async(r) => await ToggleFavorite(r.Item)"
+              Editable="true"
+              SelectedRowStyling="(r, s) => s.Color=Color.Secondary"
+              Hoverable="true"
+              Responsive="true">
+        <DataGridColumns>
+            <DataGridCommandColumn TItem="Player" Width="125px" Sortable="true">
+                <EditCommandTemplate>
+                    <Button Clicked="async() => await ToggleFavorite(context.Item)">
+                        <Icon Name="IconName.Star" Style="@OnRowStyling(context.Item.IsFavorite)"></Icon>
+                    </Button>
+                </EditCommandTemplate>
+                <NewCommandTemplate />
+                <ClearFilterCommandTemplate />
+                <DeleteCommandTemplate />
+            </DataGridCommandColumn>
+            <DataGridColumn TItem="Player" Field="@nameof(Player.PlayerId)" Caption="Player ID" Sortable="true" />
+            <DataGridSelectColumn TItem="Player" Field="@nameof(Player.FullName)" Caption="Name" Sortable="true" />
+            <DataGridColumn TItem="Player" Field="@nameof(Player.Rank)" Caption="Rank" Sortable="true" />
+            <DataGridColumn TItem="Player" Field="@nameof(Player.PrevRank)" Caption="Previous Rank" Sortable="true" />
+            <DataGridColumn TItem="Player" Field="@nameof(Player.Points)" Caption="Points" Sortable="true" />
+        </DataGridColumns>
+    </DataGrid>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    @if (playerProfileData != null)
+    {
+        <Card>
+            <CardHeader>
+                <CardTitle Style="" Size="7">@GetPlayerProfileHeader(playerProfileData)</CardTitle>
+            </CardHeader>
+            <CardBody>
+                <CardTitle>Professional History</CardTitle>
+                <CardText>@((MarkupString)playerProfileData.BioYearToDate)</CardText>
+                <CardTitle>Personal Bio</CardTitle>
+                <CardText>@((MarkupString)playerProfileData.BioPersonal)</CardText>
+            </CardBody>
+        </Card>
+    }
+}
